@@ -66,8 +66,10 @@ class FaceApp {
       });
       this.video.srcObject = this.stream;
       await new Promise(res => { this.video.onloadedmetadata = res; });
-      this.overlay.width  = this.video.videoWidth  || 640;
-      this.overlay.height = this.video.videoHeight || 480;
+      // Fixed 640x480 — must match the CSS element size so that
+      // drawImage coordinates line up with what is visually displayed.
+      this.overlay.width  = 640;
+      this.overlay.height = 480;
     } catch (err) {
       this.showToast('Kamera erişimi reddedildi: ' + err.message, 'error');
     }

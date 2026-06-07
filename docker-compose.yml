@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: yuz_tanima_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - face_data:/app/data
+    # RPi 5 Camera Module veya USB webcam için device mapping
+    # Cihaz yoksa Docker yine de sorunsuz başlar (sunucu kamerası devre dışı)
+    devices:
+      - "/dev/video0:/dev/video0"
+    group_add:
+      - video
+    environment:
+      - FACE_TOLERANCE=${FACE_TOLERANCE:-0.50}
+      - LIVENESS_EAR_THRESHOLD=${LIVENESS_EAR_THRESHOLD:-0.25}
+      - LIVENESS_BLINKS_REQUIRED=${LIVENESS_BLINKS_REQUIRED:-1}
+      - LIVENESS_CHALLENGE_TIMEOUT=${LIVENESS_CHALLENGE_TIMEOUT:-8}
+      - MAX_FRAME_FPS=${MAX_FRAME_FPS:-5}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      # Prevent OpenBLAS/OpenMP from spawning multiple threads, which
+      # conflicts with Python threading and causes heap corruption
+      - OMP_NUM_THREADS=1
+      - OPENBLAS_NUM_THREADS=1
+      - BLAS_NUM_THREADS=1
+      - MKL_NUM_THREADS=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - app_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: yuz_tanima_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+      - "3443:443"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app_net
+
+volumes:
+  face_data:
+    driver: local
+
+networks:
+  app_net:
+    driver: bridge

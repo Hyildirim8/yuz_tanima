@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yüz Tanıma Sistemi</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Yüz Tanıma Sistemi</h1>
+    <div id="status-dot" class="dot dot-idle" title="Bağlantı durumu"></div>
+  </header>
+
+  <main>
+    <!-- Kamera paneli -->
+    <section class="panel panel-camera">
+      <div class="camera-header">
+        <h2>Kamera</h2>
+        <div class="cam-toggle" id="cam-toggle" title="Kamera kaynağını değiştir">
+          <button id="btn-cam-browser" class="cam-btn active">Tarayıcı</button>
+          <button id="btn-cam-server" class="cam-btn" disabled>Sunucu</button>
+        </div>
+      </div>
+      <div class="video-wrapper">
+        <!-- Tarayıcı kamera modu -->
+        <video id="video" autoplay muted playsinline></video>
+        <!-- Sunucu kamera modu (MJPEG stream) -->
+        <img id="server-stream" class="hidden" alt="Sunucu kamerası" />
+        <canvas id="overlay"></canvas>
+      </div>
+      <div id="liveness-banner" class="liveness-banner hidden">
+        <div class="liveness-top">
+          <span id="liveness-text">Lütfen göz kırpın</span>
+          <div class="blink-dots">
+            <span id="blink-dot-1" class="blink-dot"></span>
+          </div>
+        </div>
+        <div class="liveness-bottom">
+          <span id="ear-display" class="ear-debug"></span>
+          <span id="liveness-timer" class="liveness-timer"></span>
+          <button id="btn-manual-capture" class="btn btn-secondary btn-sm hidden">Manuel Yakala</button>
+        </div>
+      </div>
+      <div id="server-cam-notice" class="server-cam-notice hidden">
+        Sunucu kamerası aktif — RPi kamera modülü veya sunucu USB kamerası kullanılıyor
+      </div>
+    </section>
+
+    <!-- Sonuç paneli -->
+    <section class="panel panel-result">
+      <h2>Tanıma Sonucu</h2>
+      <div id="result-area">
+        <div class="no-face-msg">Yüz bekleniyor...</div>
+      </div>
+    </section>
+
+    <!-- Kayıtlı yüzler paneli -->
+    <section class="panel panel-faces">
+      <h2>Kayıtlı Yüzler</h2>
+      <button id="btn-register" class="btn btn-primary">Yüzleri Kaydet</button>
+      <ul id="faces-list"></ul>
+    </section>
+  </main>
+
+  <!-- Kayıt modal -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>Yeni Yüz Kaydet</h3>
+      <label for="face-name">İsim</label>
+      <input id="face-name" type="text" placeholder="Ad Soyad" maxlength="50" />
+      <div class="modal-actions">
+        <button id="btn-modal-cancel" class="btn btn-secondary">İptal</button>
+        <button id="btn-modal-save" class="btn btn-primary">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast bildirimi -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
